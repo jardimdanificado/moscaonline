@@ -1,5 +1,3 @@
-//import * as text from "./text.js"
-
 export function cloneMatrix(matrix) {
     // Check if the input is a valid matrix (2D array)
     if (!Array.isArray(matrix) || matrix.length === 0 || !Array.isArray(matrix[0])) {
@@ -663,84 +661,19 @@ export function newMatrix(x,y,value = 0)
 	return matrix	
 }
 
-export function clearDocumentListeners()
-{
-	const eventTypes = getEventListeners(document);
-	for (const eventType in eventTypes) {
-		if (eventTypes.hasOwnProperty(eventType)) {
-			eventTypes[eventType].forEach(listener => {
-				document.removeEventListener(eventType, listener.listener);
-			});
-		}
-	}
-}
-
 export function recurse(object,subname) 
 {
 	return(object[subname])
 }
 
-export function splitSpriteSheet(spritesheet, largura, altura, corTransparente) {
-    const partes = [];
-    for (let y = 0; y < spritesheet.height; y += altura) {
-        for (let x = 0; x < spritesheet.width; x += largura) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = largura;
-            canvas.height = altura;
-
-            ctx.clearRect(0, 0, largura, altura);
-            ctx.drawImage(spritesheet, x, y, largura, altura, 0, 0, largura, altura);
-
-            if (corTransparente) {
-                const imageData = ctx.getImageData(0, 0, largura, altura);
-                for (let i = 0; i < imageData.data.length; i += 4) {
-                    const red = imageData.data[i];
-                    const green = imageData.data[i + 1];
-                    const blue = imageData.data[i + 2];
-                    if (
-                        red === corTransparente[0] &&
-                        green === corTransparente[1] &&
-                        blue === corTransparente[2]
-                    ) {
-                        imageData.data[i + 3] = 0; // Define o canal alfa como zero (transparente)
-                    }
-                }
-                ctx.putImageData(imageData, 0, 0);
-            }
-
-            const image = new Image();
-            image.src = canvas.toDataURL();
-
-            partes.push(image);
-        }
-    }
-
-    return partes;
-}
-
-// Function to load an image as a Promise
-export function loadImage(src) 
+export function newKeycode() 
 {
-    return new Promise((resolve, reject) => 
+    let key = ''
+    for (let index = 0; index < 3; index++) 
     {
-        const image = new Image();
-        image.onload = () => resolve(image);
-        image.onerror = reject;
-        image.src = src;
-    });
-}
-
-// Load all images and return a Promise that resolves when all images are loaded
-export function loadImages(session,tilesetnames) 
-{
-    const imagePromises = tilesetnames.map((src) => {
-        return loadImage('./data/img/' + src + '.png').then((image) => {
-            session.tileset[src] = splitSpriteSheet(image,16,16)
-        });
-    });
-    //text.loadAlphabet(session,imagePromises,loadImage)
-    return Promise.all(imagePromises);
+        key += randi(100000000,999999999)
+    }
+    return key
 }
 
 export function emptyfunc() {}
