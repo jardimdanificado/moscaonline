@@ -549,108 +549,6 @@ export async function abenchy(callback, args, optName = "unamed")
 	return (result)
 }
 
-export function loadjs(scriptUrl, callback) {
-    // Create a new script element
-    const script = document.createElement('script');
-
-    // Set the 'src' attribute to the URL of the external JavaScript file
-    script.src = scriptUrl;
-
-    // Define a callback function to execute when the script has loaded
-    script.onload = function () {
-        // Call the callback function if provided
-        if (typeof callback === 'function') {
-            callback();
-        }
-    };
-
-    // Append the script element to the HTML document's <head>
-    document.head.appendChild(script);
-}
-
-export function multiloadjs(scriptUrls, callback) {
-    const loadedScripts = [];
-    let scriptsToLoad = scriptUrls.length;
-
-    function scriptLoaded(scriptUrl) 
-	{
-        loadedScripts.push(scriptUrl);
-        if (loadedScripts.length === scriptsToLoad) {
-            // All scripts have loaded
-            if (typeof callback === 'function') {
-                callback();
-            }
-        }
-    }
-
-    scriptUrls.forEach((scriptUrl) => {
-        const script = document.createElement('script');
-        script.src = scriptUrl;
-        script.onload = () => scriptLoaded(scriptUrl);
-        document.head.appendChild(script);
-    });
-}
-
-export function multif(func,times)
-{
-	let result = []
-	for (let index = 0; index < times; index++) 
-	{
-		result.push(func())
-	}
-	return result
-}
-
-export function multifa(func,args)
-{
-	let result = []
-	for (let index = 0; index < args.length; index++) 
-	{
-		result.push(func(...args[index]))
-	}
-	return result
-}
-
-export function multifat(func,arg,times)
-{
-	let result = []
-	for (let index = 0; index < times; index++) 
-	{
-		result.push(func(arg))
-	}
-	return result
-}
-
-export function multic(_class,times)
-{
-	let result = []
-	for (let index = 0; index < times; index++) 
-	{
-		result.push(new _class())
-	}
-	return result
-}
-
-export function multica(_class,args)
-{
-	let result = []
-	for (let index = 0; index < args.length; index++) 
-	{
-		result.push(new _class(...args[index]))
-	}
-	return result
-}
-
-export function multicat(_class,arg,times)
-{
-	let result = []
-	for (let index = 0; index < times; index++) 
-	{
-		result.push(new _class(arg))
-	}
-	return result
-}
-
 export function newMatrix(x,y,value = 0) 
 {
 	let matrix = []
@@ -666,6 +564,13 @@ export function recurse(object,subname)
 	return(object[subname])
 }
 
+export function deleteByID(...id) 
+{
+	for (const _id of id) {
+		document.getElementById(_id).remove();
+	}
+}
+
 export function newKeycode() 
 {
     let key = ''
@@ -674,6 +579,94 @@ export function newKeycode()
         key += randi(100000000,999999999)
     }
     return key
+}
+
+export async function jsonPUT(url,data) 
+{
+    const headers = 
+    {
+      'Content-Type': 'application/json',
+    };
+  
+    const options = 
+    {
+      method: "PUT",
+      headers: headers,
+    };
+  
+    if (data) 
+    {
+      options.body = JSON.stringify(data);
+    }
+    return fetch(url, options);
+}
+
+
+export async function jsonPOST(url,data) 
+{
+    const headers = 
+    {
+      'Content-Type': 'application/json',
+    };
+  
+    const options = 
+    {
+      method: "POST",
+      headers: headers,
+    };
+  
+    if (data) 
+    {
+      options.body = JSON.stringify(data);
+    }
+    return fetch(url, options);
+}
+
+export async function jsonPATCH(url,data) 
+{
+    const headers = 
+    {
+      'Content-Type': 'application/json',
+    };
+  
+    const options = 
+    {
+      method: "PATCH",
+      headers: headers,
+    };
+  
+    if (data) 
+    {
+      options.body = JSON.stringify(data);
+    }
+	
+    return fetch(url, options);
+}
+
+export async function jsonGET(url,data) 
+{
+    const headers = 
+    {
+      'Content-Type': 'application/json',
+    };
+  
+    const options = 
+    {
+      method: "GET",
+      headers: headers,
+    };
+
+	url += '?'
+
+	for (const key in data) 
+	{
+		url += key + '=' + encodeURIComponent(data[key]) + '&'
+	}
+	if (url[url.length-1] == '&') 
+	{
+		url = url.substring(0,url.length-1)
+	}
+    return fetch(url, options);
 }
 
 export function emptyfunc() {}

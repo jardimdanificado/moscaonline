@@ -2,25 +2,31 @@
 <html>
 <head>
     <title>moscaonline</title>
+    <script src="./client.js" type="module"></script>
 </head>
 <body>
         <h1 id="__title">moscaonline</h1>
-        <label for="_user" id="label_user">Digite o nome:</label>
-        <input type="text" id="_user" placeholder="usuario">
+        <label for="_user" id="label_user">user:</label>
     <br>
-        <label for="_password" id="label_password">Digite a senha:</label>
-        <input type="text" id="_password" placeholder="senha">
+        <input type="text" id="_user" placeholder="user123">
     <br>
-        <label for="ipInput" id="label_ipInput">Digite o IP    :</label>
-        <input type="text" id="ipInput" placeholder="localhost:8080">
+    <br>
+        <label for="_password" id="label_password">psswd:</label>
+    <br>
+        <input type="text" id="_password" placeholder="*********">
+    <br>
+    <br>
+        <label for="_ip" id="label_ip">server ip:</label>
+    <br>
+        <input type="text" id="_ip" placeholder="ex:localhost:8080">
+    <br>
     <br>
         <script>
-            var connectToServer, clientKey
+            var connectToServer,__url,__key;
         </script>
-        <script src="./client.mjs" type="module"></script>
-        <button onclick="connectToServer()" id ="_button">Conectar</button>
+        <button id ="connect_button">connect!</button>
     <br>
-        <div id="result"></div>
-        <canvas id = "canvas"></canvas>
+    <div id="result"></div>
+    <br>
 </body>
 </html>
