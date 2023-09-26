@@ -107,7 +107,7 @@ export async function connectToServer()
 {
     const ip = document.getElementById('_ip').value;
     const resultDiv = document.getElementById('result');
-    __url = `http://${ip || "127.0.0.1:8080"}/`;
+    __url = `http://${ip || (_defaultIP + ":" + _defaultPort)}/`;
     const credentials = 
     {
         user:document.getElementById('_user').value || 'debug',
