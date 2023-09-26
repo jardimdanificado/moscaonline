@@ -1,4 +1,5 @@
 import { Room, User } from "./types.mjs";
+
 var get={},put={},post={},patch={};
 
 /*******************************************************************
@@ -18,7 +19,7 @@ get._getRoomList = function(data,res,roomdb)
     for (let roomid in roomdb)
     {
         let room = roomdb[roomid]
-        console.log(room)
+        console.log(room,roomid)
         if (room.allowedUsers.includes(nomeUsuario) || room.allowedUsers.length == 0) 
         {
             lista.push(room.name)
@@ -67,7 +68,7 @@ post._login = function(data,res,userdb)
 /*******************************************************************
  * 
  * 
-    POST
+    PATCH
  *
  *
 *******************************************************************/
