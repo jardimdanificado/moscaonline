@@ -1,6 +1,5 @@
 import { Room, User } from "./types.mjs";
 
-export var get,post,put,patch;
 
 /*******************************************************************
  *
@@ -104,3 +103,6 @@ patch._createRoom = function(data,res,userdb,roomdb)
  *
  *
 *******************************************************************/
+
+//export
+export {get,post,put,patch};
