@@ -22,7 +22,7 @@ get._getRoomList = function(data,res,roomdb)
         console.log(room,roomid)
         if (room.allowedUsers.includes(nomeUsuario) || room.allowedUsers.length == 0) 
         {
-            lista.push(room.name)
+            lista.push(room)
         }
     }
     res.json(lista);
