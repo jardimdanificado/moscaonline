@@ -39,6 +39,7 @@ get._getRoomList = function(data,res,roomdb)
 *******************************************************************/
 
 
+
 post._login = function(data,res,userdb) 
 {
     if (userdb[data.user]) 
@@ -79,7 +80,7 @@ patch._createRoom = function(data,res,userdb,roomdb)
 {
     if (userdb[data.user].key === data.key) 
     {
-        roomdb[data.roomname] = (new Room(data.roomname,data.user,data.allowed))
+        roomdb[data.roomname] = new Room(data.roomname,data.user,data.allowed)
     }
 }
 

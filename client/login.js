@@ -36,6 +36,7 @@ export async function spawnRoomMenu(roomlist)
     select.appendChild(optionNew);
 
     let opt = {}
+    console.log(roomlist)
     for (let i = 0; i < roomlist.length; i++) 
     {
         opt = document.createElement("option")
@@ -126,6 +127,7 @@ export async function connectToServer()
                     jsonGET(__url,{username:credentials.user,type:'getRoomList'}).then(async (result)=>
                     {
                         roomlist = await result.json();
+                        console.log(roomlist)
                         await spawnRoomMenu(roomlist);
                         let _canvas = document.createElement("canvas");
                         _canvas.setAttribute('id','canvas');
