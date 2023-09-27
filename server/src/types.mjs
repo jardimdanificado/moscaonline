@@ -2,7 +2,7 @@ import {newKeycode} from '../../shared/util.mjs'
 
 export class User
 {
-    connectedTo
+    currentLobby
     updateKey = function() 
     {
         this.key = this.username + '@' + newKeycode()
@@ -16,7 +16,7 @@ export class User
     }
 }
 
-export class Room
+export class Lobby
 {
     allowedUsers = []
     connectedUsers = []
@@ -34,9 +34,9 @@ export class Room
                 this.allowedUsers.splice(i,1);
         }
     }
-    constructor(roomname,username='all',allowed=[])
+    constructor(lobbyname,username='all',allowed=[])
     {
-        this.name = roomname
+        this.name = lobbyname
         this.username = username
         this.allowedUsers = allowed
         if (this.allowedUsers.length>0) 

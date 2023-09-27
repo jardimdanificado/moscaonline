@@ -10,7 +10,7 @@ app.use(cors());
 
 
 
-var userdb = {},roomdb = {},connectedUsers = []
+var userdb = {},lobbydb = {},connectedUsers = []
 
 
 
@@ -43,9 +43,9 @@ POST_STEPS.login = function(data,res)
     POST_STEPS._login(data,res,userdb)
 }
 
-POST_STEPS.createRoom = function(data,res) 
+POST_STEPS.createLobby = function(data,res) 
 {
-    POST_STEPS._createRoom(data,res,userdb,roomdb)
+    POST_STEPS._createLobby(data,res,userdb,lobbydb)
 }
 
 
@@ -57,19 +57,26 @@ var PATCH_STEPS = {...allMethods.PATCH}
 
 
 
+PATCH_STEPS.joinLobby = function(data,res) 
+{
+    PATCH_STEPS._joinLobby(data,res,userdb,lobbydb)
+}
+
+
+
 //GET
 //GET
 //GET
 var GET_STEPS = {...allMethods.GET}
 
-GET_STEPS.getRoomList = function(data,res) 
+GET_STEPS.getLobbyList = function(data,res) 
 {
-    GET_STEPS._getRoomList(data,res,roomdb)
+    GET_STEPS._getLobbyList(data,res,lobbydb)
 }
 
 GET_STEPS.ping = function(data,res) 
 {
-    GET_STEPS._ping(data,res,userdb,roomdb)
+    GET_STEPS._ping(data,res,userdb,lobbydb)
 }
 
 

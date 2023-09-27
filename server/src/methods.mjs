@@ -1,4 +1,4 @@
-import { Room, User } from "./types.mjs";
+import { Lobby, User } from "./types.mjs";
 
 
 
@@ -16,16 +16,16 @@ var GET={},PUT={},POST={},PATCH={},DELETE={};
 
 
 
-GET._getRoomList = function(data,res,roomdb) 
+GET._getLobbyList = function(data,res,lobbydb) 
 {
     const nomeUsuario = data.username;
     let lista = []
-    for (let roomid in roomdb)
+    for (let lobbyid in lobbydb)
     {
-        let room = roomdb[roomid]
-        if (room.allowedUsers.includes(nomeUsuario) || room.allowedUsers.length == 0) 
+        let lobby = lobbydb[lobbyid]
+        if (lobby.allowedUsers.includes(nomeUsuario) || lobby.allowedUsers.length == 0) 
         {
-            lista.push(room)
+            lista.push(lobby)
         }
     }
     res.json(lista);
@@ -33,9 +33,38 @@ GET._getRoomList = function(data,res,roomdb)
 
 
 
-GET._ping = function(data,res,userdb,roomdb)
+GET._ping = function(data,res,userdb,lobbydb)
 {
-    res.status(200).send('ok')
+    let done = false;
+    if (!userdb[data.user]) 
+    {
+        res.status(404).json({log:'user ' + data.user + ' not found.'});
+        done = true;
+    }
+    else if (!userdb[data.user].currentLobby) 
+    {
+        res.status(404).json({log:data.user + ' is not connected to any lobby.'});
+        done = true;
+    }
+    else if (!lobbydb[userdb[data.user].currentLobby]) 
+    {
+        res.status(404).json({log:'lobby ' + userdb[data.user].currentLobby + ' not found.'});
+        done = true;
+    }
+    else
+    {
+        let localLobby = lobbydb[userdb[data.user].currentLobby]
+        for (const cUser of localLobby.connectedUsers) 
+        {
+            if(cUser === data.user) 
+            {
+                res.status(200).json({log:'ok'});
+                done = true;
+            }
+        }
+    }
+    if(!done)
+        res.status(404).json({log:'something went wrong'})
 }
 
 
@@ -76,12 +105,12 @@ POST._login = function(data,res,userdb)
 
 
 
-POST._createRoom = function(data,res,userdb,roomdb)
+POST._createLobby = function(data,res,userdb,lobbydb)
 {
     if (userdb[data.user].key === data.key) 
     {
-        roomdb[data.roomname] = new Room(data.roomname,data.user,data.allowed)
-        console.log("room " + data.roomname + " has been created by " + data.user)
+        lobbydb[data.lobbyname] = new Lobby(data.lobbyname,data.user,data.allowed)
+        console.log("lobby " + data.lobbyname + " has been created by " + data.user)
     }
 }
 
@@ -97,7 +126,28 @@ POST._createRoom = function(data,res,userdb,roomdb)
 
 
 
-
+PATCH._joinLobby = function(data,res,userdb,lobbydb)
+{
+    if(!userdb[data.user])
+    {
+        res.status(404).json({log:'lobby ' + data.lobbyname + ' does not exist.'})
+    }
+    else if (!lobbydb[data.lobbyname]) 
+    {
+        res.status(404).json({log:'user ' + data.user + ' does not exist.'})
+    }
+    else if (userdb[data.user].key === data.key) 
+    {
+        lobbydb[data.lobbyname].connectedUsers.push(data.user);
+        userdb[data.user].currentLobby = data.lobbyname;
+        console.log('user ' + data.user + ' joined "' + data.lobbyname + '" lobby');
+        res.status(200).json({log:'joined'})
+    }
+    else
+    {
+        res.status(404)
+    }
+}
 
 
 
@@ -123,12 +173,12 @@ POST._createRoom = function(data,res,userdb,roomdb)
 
 
 
-DELETE._deleteRoom = function(data,res,userdb,roomdb)
+DELETE._deleteLobby = function(data,res,userdb,lobbydb)
 {
     if (userdb[data.user].key === data.key) 
     {
-        delete roomdb[data.roomname];
-        console.log("room " + data.roomname + " has been deleted.")
+        delete lobbydb[data.lobbyname];
+        console.log("lobby " + data.lobbyname + " has been deleted.")
     }
 }
 

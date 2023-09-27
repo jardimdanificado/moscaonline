@@ -13,46 +13,46 @@ import { deleteByID, jsonPUT, jsonPOST, jsonGET, jsonPATCH} from "../shared/util
 
 function cleanLoginElements() 
 {
-    let ids = ['_user','label_user','_password','label_password','_ip','label_ip','_button','result','__title','create_room_button']
+    let ids = ['_user','label_user','_password','label_password','_ip','label_ip','_button','result','__title','create_lobby_button']
     deleteByID(...ids)
 }
 
 
 
-//SPAWN_ROOM_MENU
-//SPAWN_ROOM_MENU
-//SPAWN_ROOM_MENU
-async function spawnRoomMenu(roomlist) 
+//SPAWN_LOBBY_MENU
+//SPAWN_LOBBY_MENU
+//SPAWN_LOBBY_MENU
+async function spawnLobbyMenu(lobbylist,credentials) 
 {
-    if(document.getElementById('roomform') && document.getElementById('roomform').remove)
+    if(document.getElementById('lobbyform') && document.getElementById('lobbyform').remove)
     {
-        document.getElementById('roomform').remove()
+        document.getElementById('lobbyform').remove()
         document.getElementById('canvas').remove()
     }
     const form = document.createElement("form");
-    form.setAttribute('id','roomform');
+    form.setAttribute('id','lobbyform');
     const label = document.createElement("label");
-    label.setAttribute("for", "roomlist");
-    label.textContent = "choose a room:";
+    label.setAttribute("for", "lobbylist");
+    label.textContent = "choose a lobby:";
     form.appendChild(label);
 
     const br = document.createElement("br");
     form.appendChild(br);
 
     const select = document.createElement("select");
-    select.setAttribute("id", "roomlist");
+    select.setAttribute("id", "lobbylist");
     select.setAttribute("size", "5");
 
     const optionNew = document.createElement("option");
     optionNew.setAttribute("value", "new");
-    optionNew.textContent = "new room";
+    optionNew.textContent = "new lobby";
     select.appendChild(optionNew);
     let opt = {}
-    for (let i = 0; i < roomlist.length; i++) 
+    for (let i = 0; i < lobbylist.length; i++) 
     {
         opt = document.createElement("option")
-        opt.setAttribute("value", roomlist[i].name);
-        opt.textContent = roomlist[i].name;
+        opt.setAttribute("value", lobbylist[i].name);
+        opt.textContent = lobbylist[i].name;
         select.appendChild(opt);
     }
 
@@ -64,7 +64,7 @@ async function spawnRoomMenu(roomlist)
 
     const labelNomeSala = document.createElement("label");
     labelNomeSala.setAttribute("for", "nomeSalaInput");
-    labelNomeSala.textContent = "room name:";
+    labelNomeSala.textContent = "lobby name:";
     divNomeSala.appendChild(labelNomeSala);
     divNomeSala.appendChild(document.createElement("br"));
 
@@ -75,15 +75,15 @@ async function spawnRoomMenu(roomlist)
     divNomeSala.appendChild(document.createElement("br"));
 
     const buttonSala = document.createElement("button");
-    buttonSala.setAttribute("id", "create_room_button");
-    buttonSala.textContent = "create room!";
+    buttonSala.setAttribute("id", "create_lobby_button");
+    buttonSala.textContent = "create lobby!";
     buttonSala.addEventListener("click",async function(event) 
     {
         event.preventDefault();
         jsonPOST(__url,
             {
-                type:"createRoom",
-                key:__key,roomname:inputNomeSala.value,
+                type:"createLobby",
+                key:__key,lobbyname:inputNomeSala.value,
                 user:__key.split('@')[0]
             }).then(async (result)=>
             {
@@ -95,17 +95,46 @@ async function spawnRoomMenu(roomlist)
     form.appendChild(divNomeSala);
 
     const buttonEnter = document.createElement("button");
-    buttonEnter.setAttribute("id", "join_room_button");
-    buttonEnter.textContent = "join room!";
-    buttonEnter.addEventListener("click",async function(event) 
+    buttonEnter.setAttribute("id", "join_lobby_button");
+    buttonEnter.textContent = "join lobby!";
+    buttonEnter.addEventListener("click",function(event) 
     {
         event.preventDefault();
+        jsonPATCH(__url,{user:credentials.user,lobbyname:_selectedLobby,key:__key},'joinLobby')
+            .then((result)=>
+            {
+                if (result.status == 200)
+                {
+                    if (_pingIntervalID) 
+                    {
+                        clearInterval(_pingIntervalID);
+                        _pingIntervalID = undefined;
+                    }
+                    _pingIntervalID = setInterval(()=>
+                    {
+                        jsonGET(__url,{user:credentials.user},'ping')
+                            .then((result)=>
+                            {
+                                if (result.status !== 200) 
+                                {
+                                    result.json().then((result)=>
+                                    {
+                                        console.log(result.log);
+                                        clearInterval(_pingIntervalID);
+                                    }).catch((reason)=>{console.error(reason)})
+                                }
+                                else
+                                    console.log('ping')
+                            }).catch((reason)=>{console.error(reason)})
+                    },700)
+                }
+            }).catch((reason)=>{console.error(reason)})
     });
     buttonEnter.style.display = 'none';
     form.appendChild(buttonEnter);
 
     document.body.appendChild(form);
-    const selectElement = document.getElementById('roomlist');
+    const selectElement = document.getElementById('lobbylist');
     const nomeSalaDiv = document.getElementById('nomeSala');
     selectElement.addEventListener('change', (event) => 
     {
@@ -117,6 +146,7 @@ async function spawnRoomMenu(roomlist)
         }
         else 
         {
+            _selectedLobby = selectedValue
             nomeSalaDiv.style.display = 'none';
             buttonEnter.style.display = 'block';
         }
@@ -143,11 +173,11 @@ async function connectToServer()
         {
             if (response.status === 200) 
             {
-                let roomlist = [];
-                jsonGET(__url,{username:credentials.user},'getRoomList').then(async (result)=>
+                let lobbylist = [];
+                jsonGET(__url,{username:credentials.user},'getLobbyList').then(async (result)=>
                 {
-                    roomlist = await result.json();
-                    await spawnRoomMenu(roomlist);
+                    lobbylist = await result.json();
+                    await spawnLobbyMenu(lobbylist,credentials);
                     let _canvas = document.createElement("canvas");
                     _canvas.setAttribute('id','canvas');
                     document.body.appendChild(_canvas);
@@ -156,12 +186,6 @@ async function connectToServer()
                         __key = __json.key
                         console.log("login debug : " + __json.message)
                     });
-                    if (_pingIntervalID) 
-                    {
-                        clearInterval(_pingIntervalID)
-                        _pingIntervalID = undefined
-                    }
-                    _pingIntervalID = setInterval(()=>{jsonGET(__url,{},'ping')},700)
                 });
             }
             else
