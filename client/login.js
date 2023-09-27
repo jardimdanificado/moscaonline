@@ -8,7 +8,8 @@ export function cleanLoginElements()
 
 export async function spawnRoomMenu(roomlist) 
 {
-    document.getElementById('roomform').remove()
+    if(document.getElementById('roomform').remove)
+        document.getElementById('roomform').remove()
     // Crie o elemento <form>
     const form = document.createElement("form");
     form.setAttribute('id','roomform');
