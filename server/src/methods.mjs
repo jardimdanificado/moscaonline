@@ -19,7 +19,7 @@ var get={},put={},post={},patch={};
 get._getRoomList = function(data,res,roomdb) 
 {
     const nomeUsuario = data.username;
-    let lista = [new Room('teste','debug')]
+    let lista = [new Room('teste','debug'),new Room('teste2','debug')]
     for (let roomid in roomdb)
     {
         let room = roomdb[roomid]

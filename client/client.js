@@ -13,7 +13,7 @@ import { deleteByID, jsonPUT, jsonPOST, jsonGET, jsonPATCH} from "../shared/util
 
 function cleanLoginElements() 
 {
-    let ids = ['_user','label_user','_password','label_password','_ip','label_ip','_button','result','__title']
+    let ids = ['_user','label_user','_password','label_password','_ip','label_ip','_button','result','__title','create_room_button']
     deleteByID(...ids)
 }
 
@@ -47,11 +47,9 @@ async function spawnRoomMenu(roomlist)
     optionNew.setAttribute("value", "new");
     optionNew.textContent = "new room";
     select.appendChild(optionNew);
-    console.log(roomlist)
     let opt = {}
     for (let i = 0; i < roomlist.length; i++) 
     {
-        
         opt = document.createElement("option")
         opt.setAttribute("value", roomlist[i].name);
         opt.textContent = roomlist[i].name;
@@ -79,7 +77,7 @@ async function spawnRoomMenu(roomlist)
     const buttonSala = document.createElement("button");
     buttonSala.setAttribute("id", "create_room_button");
     buttonSala.textContent = "create room!";
-    buttonSala.addEventListener("click", function(event) 
+    buttonSala.addEventListener("click",async function(event) 
     {
         event.preventDefault();
         jsonPATCH(__url,
@@ -89,15 +87,22 @@ async function spawnRoomMenu(roomlist)
                 user:__key.split('@')[0]
             }).then(async (result)=>
             {
-
+                
             })
+        await connectToServer();
     });
     divNomeSala.appendChild(buttonSala);
-
     form.appendChild(divNomeSala);
+
+    const buttonEnter = document.createElement("button");
+    buttonEnter.setAttribute("id", "join_room_button");
+    buttonEnter.textContent = "join room!";
+    buttonEnter.addEventListener("click",async function(event) {});
+    buttonEnter.style.display = 'none';
+    form.appendChild(buttonEnter);
+
     document.body.appendChild(form);
     const selectElement = document.getElementById('roomlist');
-    const nomeSalaInput = document.getElementById('nomeSalaInput');//nomeSalaInput.value
     const nomeSalaDiv = document.getElementById('nomeSala');
     selectElement.addEventListener('change', (event) => 
     {
@@ -105,10 +110,12 @@ async function spawnRoomMenu(roomlist)
         if (selectedValue === 'new') 
         {
             nomeSalaDiv.style.display = 'block';
+            buttonEnter.style.display = 'none';
         }
         else 
         {
             nomeSalaDiv.style.display = 'none';
+            buttonEnter.style.display = 'block';
         }
     });
 }
@@ -139,7 +146,6 @@ async function connectToServer()
                 jsonGET(__url,{username:credentials.user,type:'getRoomList'}).then(async (result)=>
                 {
                     roomlist = await result.json();
-                    console.log(roomlist)
                     await spawnRoomMenu(roomlist);
                     let _canvas = document.createElement("canvas");
                     _canvas.setAttribute('id','canvas');
