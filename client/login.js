@@ -14,7 +14,7 @@ export async function spawnRoomMenu(roomlist)
     }
     // Crie o elemento <form>
     const form = document.createElement("form");
-    form.setAttribute('id','roomform')
+    form.setAttribute('id','roomform');
     // Crie o elemento <label> para "choose a room"
     const label = document.createElement("label");
     label.setAttribute("for", "roomlist");
@@ -36,9 +36,9 @@ export async function spawnRoomMenu(roomlist)
     select.appendChild(optionNew);
 
     let opt = {}
-    console.log(roomlist)
     for (let i = 0; i < roomlist.length; i++) 
     {
+        console.log(roomlist)
         opt = document.createElement("option")
         opt.setAttribute("value", roomlist[i].name);
         opt.textContent = roomlist[i].name;
@@ -47,12 +47,10 @@ export async function spawnRoomMenu(roomlist)
 
     form.appendChild(select);
 
-    // Crie o elemento <div> para "room name"
     const divNomeSala = document.createElement("div");
     divNomeSala.setAttribute("id", "nomeSala");
     divNomeSala.style.display = "none";
 
-    // Crie o elemento <label> para "room name"
     const labelNomeSala = document.createElement("label");
     labelNomeSala.setAttribute("for", "nomeSalaInput");
     labelNomeSala.textContent = "room name:";
