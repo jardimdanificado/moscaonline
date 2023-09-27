@@ -581,8 +581,12 @@ export function newKeycode()
     return key
 }
 
-export async function jsonPUT(url,data) 
+export async function jsonPUT(url,data,type) 
 {
+	if (type) 
+	{
+		data.type = type
+	}
     const headers = 
     {
       'Content-Type': 'application/json',
@@ -602,8 +606,12 @@ export async function jsonPUT(url,data)
 }
 
 
-export async function jsonPOST(url,data) 
+export async function jsonPOST(url,data,type) 
 {
+	if (type) 
+	{
+		data.type = type
+	}
     const headers = 
     {
       'Content-Type': 'application/json',
@@ -622,8 +630,12 @@ export async function jsonPOST(url,data)
     return fetch(url, options);
 }
 
-export async function jsonPATCH(url,data) 
+export async function jsonPATCH(url,data,type) 
 {
+	if (type) 
+	{
+		data.type = type
+	}
     const headers = 
     {
       'Content-Type': 'application/json',
@@ -643,8 +655,12 @@ export async function jsonPATCH(url,data)
     return fetch(url, options);
 }
 
-export async function jsonGET(url,data) 
+export async function jsonGET(url,data,type) 
 {
+	if (type) 
+	{
+		data.type = type
+	}
     const headers = 
     {
       'Content-Type': 'application/json',

@@ -2,7 +2,7 @@ import { Room, User } from "./types.mjs";
 
 
 
-var get={},put={},post={},patch={};
+var GET={},PUT={},POST={},PATCH={},DELETE={};
 
 
 
@@ -16,20 +16,26 @@ var get={},put={},post={},patch={};
 
 
 
-get._getRoomList = function(data,res,roomdb) 
+GET._getRoomList = function(data,res,roomdb) 
 {
     const nomeUsuario = data.username;
-    let lista = [new Room('teste','debug'),new Room('teste2','debug')]
+    let lista = []
     for (let roomid in roomdb)
     {
         let room = roomdb[roomid]
-        console.log(room,roomid)
         if (room.allowedUsers.includes(nomeUsuario) || room.allowedUsers.length == 0) 
         {
             lista.push(room)
         }
     }
     res.json(lista);
+}
+
+
+
+GET._ping = function(data,res,userdb,roomdb)
+{
+    res.status(200).send('ok')
 }
 
 
@@ -44,7 +50,7 @@ get._getRoomList = function(data,res,roomdb)
 
 
 
-post._login = function(data,res,userdb) 
+POST._login = function(data,res,userdb) 
 {
     if (userdb[data.user]) 
     {
@@ -70,6 +76,17 @@ post._login = function(data,res,userdb)
 
 
 
+POST._createRoom = function(data,res,userdb,roomdb)
+{
+    if (userdb[data.user].key === data.key) 
+    {
+        roomdb[data.roomname] = new Room(data.roomname,data.user,data.allowed)
+        console.log("room " + data.roomname + " has been created by " + data.user)
+    }
+}
+
+
+
 /*******************************************************************
  * 
  * 
@@ -80,13 +97,7 @@ post._login = function(data,res,userdb)
 
 
 
-patch._createRoom = function(data,res,userdb,roomdb) 
-{
-    if (userdb[data.user].key === data.key) 
-    {
-        roomdb[data.roomname] = new Room(data.roomname,data.user,data.allowed)
-    }
-}
+
 
 
 
@@ -110,5 +121,18 @@ patch._createRoom = function(data,res,userdb,roomdb)
  *
 *******************************************************************/
 
+
+
+DELETE._deleteRoom = function(data,res,userdb,roomdb)
+{
+    if (userdb[data.user].key === data.key) 
+    {
+        delete roomdb[data.roomname];
+        console.log("room " + data.roomname + " has been deleted.")
+    }
+}
+
+
+
 //export
-export {get,post,put,patch};
+export {GET,POST,PUT,PATCH,DELETE};

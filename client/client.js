@@ -80,7 +80,7 @@ async function spawnRoomMenu(roomlist)
     buttonSala.addEventListener("click",async function(event) 
     {
         event.preventDefault();
-        jsonPATCH(__url,
+        jsonPOST(__url,
             {
                 type:"createRoom",
                 key:__key,roomname:inputNomeSala.value,
@@ -97,7 +97,10 @@ async function spawnRoomMenu(roomlist)
     const buttonEnter = document.createElement("button");
     buttonEnter.setAttribute("id", "join_room_button");
     buttonEnter.textContent = "join room!";
-    buttonEnter.addEventListener("click",async function(event) {});
+    buttonEnter.addEventListener("click",async function(event) 
+    {
+        event.preventDefault();
+    });
     buttonEnter.style.display = 'none';
     form.appendChild(buttonEnter);
 
@@ -133,17 +136,15 @@ async function connectToServer()
     {
         user:document.getElementById('_user').value || 'debug',
         password:document.getElementById('_password').value || 'debug',
-        type:'login'
     }
     
-    jsonPOST(__url,credentials)
+    jsonPOST(__url,credentials,'login')
       .then(async response => 
         {
-            
             if (response.status === 200) 
             {
                 let roomlist = [];
-                jsonGET(__url,{username:credentials.user,type:'getRoomList'}).then(async (result)=>
+                jsonGET(__url,{username:credentials.user},'getRoomList').then(async (result)=>
                 {
                     roomlist = await result.json();
                     await spawnRoomMenu(roomlist);
@@ -155,6 +156,12 @@ async function connectToServer()
                         __key = __json.key
                         console.log("login debug : " + __json.message)
                     });
+                    if (_pingIntervalID) 
+                    {
+                        clearInterval(_pingIntervalID)
+                        _pingIntervalID = undefined
+                    }
+                    _pingIntervalID = setInterval(()=>{jsonGET(__url,{},'ping')},700)
                 });
             }
             else

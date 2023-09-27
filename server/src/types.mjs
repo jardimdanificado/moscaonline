@@ -2,6 +2,7 @@ import {newKeycode} from '../../shared/util.mjs'
 
 export class User
 {
+    connectedTo
     updateKey = function() 
     {
         this.key = this.username + '@' + newKeycode()
@@ -18,6 +19,7 @@ export class User
 export class Room
 {
     allowedUsers = []
+    connectedUsers = []
     creator = 'all'
     name = 'noname'
     allowPlayer = function(username)

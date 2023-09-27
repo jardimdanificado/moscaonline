@@ -10,7 +10,7 @@ app.use(cors());
 
 
 
-var userdb = {},roomdb = {}
+var userdb = {},roomdb = {},connectedUsers = []
 
 
 
@@ -26,31 +26,50 @@ const allMethods = await import('./src/methods.mjs')
  *
 *******************************************************************/
 
+//PUT
+//PUT
+//PUT
+var PUT_STEPS = {...allMethods.PUT}
 
-var PUT_STEPS = {...allMethods.put}
 
 
-var POST_STEPS = {...allMethods.post}
+//POST
+//POST
+//POST
+var POST_STEPS = {...allMethods.POST}
 
 POST_STEPS.login = function(data,res) 
 {
     POST_STEPS._login(data,res,userdb)
 }
 
-
-var PATCH_STEPS = {...allMethods.patch}
-
-PATCH_STEPS.createRoom = function(data,res) 
+POST_STEPS.createRoom = function(data,res) 
 {
-    PATCH_STEPS._createRoom(data,res,userdb,roomdb)
+    POST_STEPS._createRoom(data,res,userdb,roomdb)
 }
 
 
-var GET_STEPS = {...allMethods.get}
+
+//PATCH
+//PATCH
+//PATCH
+var PATCH_STEPS = {...allMethods.PATCH}
+
+
+
+//GET
+//GET
+//GET
+var GET_STEPS = {...allMethods.GET}
 
 GET_STEPS.getRoomList = function(data,res) 
 {
     GET_STEPS._getRoomList(data,res,roomdb)
+}
+
+GET_STEPS.ping = function(data,res) 
+{
+    GET_STEPS._ping(data,res,userdb,roomdb)
 }
 
 
@@ -94,5 +113,5 @@ app.get('/', (req, res) =>
 
 
 app.listen(8080, () => {
-  console.log('Servidor está rodando na porta 8080');
+  console.log('Servidor está rodando em localhost:8080');
 });
