@@ -83,7 +83,7 @@ async function spawnLobbyMenu(lobbylist,credentials)
         jsonPOST(__url,
             {
                 type:"createLobby",
-                key:__key,lobbyname:inputNomeSala.value,
+                key:__key,lobbyid:inputNomeSala.value,
                 user:__key.split('@')[0]
             }).then(async (result)=>
             {
@@ -100,7 +100,7 @@ async function spawnLobbyMenu(lobbylist,credentials)
     buttonEnter.addEventListener("click",function(event) 
     {
         event.preventDefault();
-        jsonPATCH(__url,{user:credentials.user,lobbyname:_selectedLobby,key:__key},'joinLobby')
+        jsonPATCH(__url,{user:credentials.user,lobbyid:_selectedLobby,key:__key},'joinLobby')
             .then((result)=>
             {
                 if (result.status == 200)
@@ -161,7 +161,7 @@ async function connectToServer()
 {
     const ip = document.getElementById('_ip').value;
     const resultDiv = document.getElementById('result');
-    __url = `http://${ip || (_defaultIP + ":" + _defaultPort)}/`;
+    __url = `http://${ip || (_config.ip + ":" + _config.port)}/`;
     const credentials = 
     {
         user:document.getElementById('_user').value || 'debug',
@@ -219,7 +219,7 @@ function main()
     bt.addEventListener("click", connectToServer);
 
     const ipbar = document.getElementById("_ip");
-    ipbar.placeholder = _defaultIP + ':' + _defaultPort; // ip padrão no campo de ip
+    ipbar.placeholder = _config.ip + ':' + _config.port; // ip padrão no campo de ip
 };
 
 main();

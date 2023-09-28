@@ -109,8 +109,8 @@ POST._createLobby = function(data,res,userdb,lobbydb)
 {
     if (userdb[data.user].key === data.key) 
     {
-        lobbydb[data.lobbyname] = new Lobby(data.lobbyname,data.user,data.allowed)
-        console.log("lobby " + data.lobbyname + " has been created by " + data.user)
+        lobbydb[data.lobbyid] = new Lobby(data.lobbyid,data.user,data.allowed)
+        console.log("lobby " + data.lobbyid + " has been created by " + data.user)
     }
 }
 
@@ -130,17 +130,17 @@ PATCH._joinLobby = function(data,res,userdb,lobbydb)
 {
     if(!userdb[data.user])
     {
-        res.status(404).json({log:'lobby ' + data.lobbyname + ' does not exist.'})
+        res.status(404).json({log:'lobby ' + data.lobbyid + ' does not exist.'})
     }
-    else if (!lobbydb[data.lobbyname]) 
+    else if (!lobbydb[data.lobbyid]) 
     {
         res.status(404).json({log:'user ' + data.user + ' does not exist.'})
     }
     else if (userdb[data.user].key === data.key) 
     {
-        lobbydb[data.lobbyname].connectedUsers.push(data.user);
-        userdb[data.user].currentLobby = data.lobbyname;
-        console.log('user ' + data.user + ' joined "' + data.lobbyname + '" lobby');
+        lobbydb[data.lobbyid].connectedUsers.push(data.user);
+        userdb[data.user].currentLobby = data.lobbyid;
+        console.log('user ' + data.user + ' joined "' + data.lobbyid + '" lobby');
         res.status(200).json({log:'joined'})
     }
     else
@@ -177,8 +177,8 @@ DELETE._deleteLobby = function(data,res,userdb,lobbydb)
 {
     if (userdb[data.user].key === data.key) 
     {
-        delete lobbydb[data.lobbyname];
-        console.log("lobby " + data.lobbyname + " has been deleted.")
+        delete lobbydb[data.lobbyid];
+        console.log("lobby " + data.lobbyid + " has been deleted.")
     }
 }
 

@@ -22,10 +22,11 @@
     <br>
     <br>
         <script>
+            var _config = fetch("./config.json").then((response) => {
+                return response.json();
+            })
             var __url,
             __key,
-            _defaultIP = '35.198.56.33',
-            _defaultPort = '8080',
             _pingIntervalID,
             _selectedLobby;
         </script>

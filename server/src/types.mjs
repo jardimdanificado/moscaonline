@@ -2,6 +2,8 @@ import {newKeycode} from '../../shared/util.mjs'
 
 export class User
 {
+    ping = false
+    lostPing = 0
     currentLobby
     updateKey = function() 
     {
@@ -34,9 +36,9 @@ export class Lobby
                 this.allowedUsers.splice(i,1);
         }
     }
-    constructor(lobbyname,username='all',allowed=[])
+    constructor(lobbyid,username='all',allowed=[])
     {
-        this.name = lobbyname
+        this.name = lobbyid
         this.username = username
         this.allowedUsers = allowed
         if (this.allowedUsers.length>0) 

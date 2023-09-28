@@ -10,8 +10,10 @@ app.use(cors());
 
 
 
-var userdb = {},lobbydb = {},connectedUsers = []
-
+var userdb = {},lobbydb = {},connectedUsers = [];
+var tickRate = 700;
+var currentFrame = 0;
+var tickIntervalID;
 
 
 const allMethods = await import('./src/methods.mjs')
@@ -119,6 +121,37 @@ app.get('/', (req, res) =>
 });
 
 
+
+/*******************************************************************
+ * 
+ * 
+    LOOPS
+ *
+ *
+*******************************************************************/
+
+
+
 app.listen(8080, () => {
   console.log('Servidor está rodando em localhost:8080');
+  tickIntervalID = setInterval(() => {
+    currentFrame++;
+    for (let i = 0; i < connectedUsers.length; i++) 
+    {
+        if (!connectedUsers[i].ping)
+        {
+            connectedUsers[i].lostPing++;
+        }
+        else if (lostPing > 10) 
+        {
+            console.log(connectedUsers[i].username + ' disconnected');
+            connectedUsers.splice(i,1);
+        }
+        else
+        {
+            connectedUsers[i].ping = false;
+            connectedUsers[i].lostPing = 0;
+        }
+    }
+  })
 });
