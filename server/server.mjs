@@ -11,7 +11,6 @@ app.use(cors());
 
 
 var userdb = {},lobbydb = {},connectedUsers = [];
-var tickRate = 700;
 var currentFrame = 0;
 var tickIntervalID;
 
@@ -132,9 +131,11 @@ app.get('/', (req, res) =>
 
 
 
-app.listen(8080, () => {
+app.listen(8080, () => 
+{
   console.log('Servidor está rodando em localhost:8080');
-  tickIntervalID = setInterval(() => {
+  tickIntervalID = setInterval(() => 
+  {
     currentFrame++;
     for (let i = 0; i < connectedUsers.length; i++) 
     {

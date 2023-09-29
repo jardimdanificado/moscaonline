@@ -2,6 +2,13 @@
 <html>
 <head>
     <title>moscaonline</title>
+    <script>
+        var _config,
+        __url,
+        __key,
+        _pingIntervalID,
+        _selectedLobby;
+    </script>
     <script src="./client.js" type="module"></script>
 </head>
 <body>
@@ -18,18 +25,9 @@
     <br>
         <label for="_ip" id="label_ip">server ip:</label>
     <br>
-        <input type="text" id="_ip" placeholder="ex: localhost:8080"">
+        <input type="text" id="_ip" placeholder="ex: localhost:8080">
     <br>
     <br>
-        <script>
-            var _config = fetch("./config.json").then((response) => {
-                return response.json();
-            })
-            var __url,
-            __key,
-            _pingIntervalID,
-            _selectedLobby;
-        </script>
         <button id ="connect_button">connect!</button>
     <br>
     <div id="result"></div>

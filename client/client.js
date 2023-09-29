@@ -74,6 +74,13 @@ async function spawnLobbyMenu(lobbylist,credentials)
     divNomeSala.appendChild(inputNomeSala);
     divNomeSala.appendChild(document.createElement("br"));
 
+    const inputTickrate = document.createElement("input")
+    inputTickrate.setAttribute("type", "number");
+    inputTickrate.setAttribute("id", "__tickrate");
+    inputTickrate.setAttribute("min", "1");
+    divNomeSala.appendChild(inputTickrate);
+    divNomeSala.appendChild(document.createElement("br"));
+
     const buttonSala = document.createElement("button");
     buttonSala.setAttribute("id", "create_lobby_button");
     buttonSala.textContent = "create lobby!";
@@ -84,7 +91,8 @@ async function spawnLobbyMenu(lobbylist,credentials)
             {
                 type:"createLobby",
                 key:__key,lobbyid:inputNomeSala.value,
-                user:__key.split('@')[0]
+                user:__key.split('@')[0],
+                tickrate:inputTickrate.value
             }).then(async (result)=>
             {
                 
@@ -105,6 +113,7 @@ async function spawnLobbyMenu(lobbylist,credentials)
             {
                 if (result.status == 200)
                 {
+                    let tickrate = result.json().tickrate;
                     if (_pingIntervalID) 
                     {
                         clearInterval(_pingIntervalID);
@@ -121,12 +130,15 @@ async function spawnLobbyMenu(lobbylist,credentials)
                                     {
                                         console.log(result.log);
                                         clearInterval(_pingIntervalID);
-                                    }).catch((reason)=>{console.error(reason)})
+                                    }).catch((reason)=>
+                                    {
+                                        console.error(reason)
+                                    })
                                 }
                                 else
                                     console.log('ping')
                             }).catch((reason)=>{console.error(reason)})
-                    },700)
+                    },tickrate)
                 }
             }).catch((reason)=>{console.error(reason)})
     });
@@ -154,52 +166,54 @@ async function spawnLobbyMenu(lobbylist,credentials)
 }
 
 
-//CONNECT
-//CONNECT
-//CONNECT
 async function connectToServer() 
 {
+  
     const ip = document.getElementById('_ip').value;
-    const resultDiv = document.getElementById('result');
-    __url = `http://${ip || (_config.ip + ":" + _config.port)}/`;
-    const credentials = 
+  
+  const resultDiv = document.getElementById('result');
+  __url = `http://${ip || (_config.ip + ":" + _config.port)}/`;
+  
+  const credentials = 
+  {
+    user: document.getElementById('_user').value || 'debug',
+    password: document.getElementById('_password').value || 'debug',
+  }
+
+  try 
+  {
+    const response = await jsonPOST(__url, credentials, 'login');
+
+    if (response.status === 200) 
     {
-        user:document.getElementById('_user').value || 'debug',
-        password:document.getElementById('_password').value || 'debug',
+        let lobbylist = [];
+        const result = await jsonGET(__url, { username: credentials.user }, 'getLobbyList');
+        lobbylist = await result.json();
+
+        await spawnLobbyMenu(lobbylist, credentials);
+
+        let _canvas = document.createElement("canvas");
+        _canvas.setAttribute('id', 'canvas');
+        document.body.appendChild(_canvas);
+
+        const __json = await response.json();
+        __key = __json.key;
+        console.log("login debug : " + __json.message);
     }
-    
-    jsonPOST(__url,credentials,'login')
-      .then(async response => 
-        {
-            if (response.status === 200) 
-            {
-                let lobbylist = [];
-                jsonGET(__url,{username:credentials.user},'getLobbyList').then(async (result)=>
-                {
-                    lobbylist = await result.json();
-                    await spawnLobbyMenu(lobbylist,credentials);
-                    let _canvas = document.createElement("canvas");
-                    _canvas.setAttribute('id','canvas');
-                    document.body.appendChild(_canvas);
-                    response.json().then((__json)=>
-                    {
-                        __key = __json.key
-                        console.log("login debug : " + __json.message)
-                    });
-                });
-            }
-            else
-            {
-                resultDiv.innerHTML = 'Erro na conexão com o servidor.';
-            }
-        })
-        .catch(error => {
-            resultDiv.innerHTML = 'Erro na conexão com o servidor.';
-            console.error(error);
-        });
-    const bt = document.getElementById("connect_button");
-    bt.addEventListener("click", connectToServer);
+    else 
+    {
+      resultDiv.innerHTML = 'Erro na conexão com o servidor.';
+    }
+  } 
+  catch (error) 
+  {
+    resultDiv.innerHTML = 'Erro na conexão com o servidor.';
+    console.error(error);
+  }
 }
+
+const bt = document.getElementById("connect_button");
+bt.addEventListener("click", connectToServer);
 
 
 
@@ -213,13 +227,16 @@ async function connectToServer()
 
 
 
-function main() 
+async function main() 
 {
+    _config = await fetch("./config.json");
+    _config = await _config.json();
     const bt = document.getElementById("connect_button");
     bt.addEventListener("click", connectToServer);
 
     const ipbar = document.getElementById("_ip");
     ipbar.placeholder = _config.ip + ':' + _config.port; // ip padrão no campo de ip
+    
 };
 
-main();
+await main();

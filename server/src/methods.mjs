@@ -109,7 +109,7 @@ POST._createLobby = function(data,res,userdb,lobbydb)
 {
     if (userdb[data.user].key === data.key) 
     {
-        lobbydb[data.lobbyid] = new Lobby(data.lobbyid,data.user,data.allowed)
+        lobbydb[data.lobbyid] = new Lobby(data.lobbyid,data.user,data.allowed,data.tickrate)
         console.log("lobby " + data.lobbyid + " has been created by " + data.user)
     }
 }
@@ -141,7 +141,7 @@ PATCH._joinLobby = function(data,res,userdb,lobbydb)
         lobbydb[data.lobbyid].connectedUsers.push(data.user);
         userdb[data.user].currentLobby = data.lobbyid;
         console.log('user ' + data.user + ' joined "' + data.lobbyid + '" lobby');
-        res.status(200).json({log:'joined'})
+        res.status(200).json({log:'joined',tickrate:lobbydb[data.lobbyid].tickrate});
     }
     else
     {

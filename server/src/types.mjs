@@ -36,14 +36,15 @@ export class Lobby
                 this.allowedUsers.splice(i,1);
         }
     }
-    constructor(lobbyid,username='all',allowed=[])
+    constructor(lobbyid,username='all',allowed=[],tickrate=700)
     {
-        this.name = lobbyid
-        this.username = username
-        this.allowedUsers = allowed
+        this.name = lobbyid;
+        this.creator = username;
+        this.allowedUsers = allowed;
+        this.tickrate = tickrate;
         if (this.allowedUsers.length>0) 
         {
-            this.allowedUsers.push(username)
+            this.allowedUsers.push(username);
         }
     }
 }
