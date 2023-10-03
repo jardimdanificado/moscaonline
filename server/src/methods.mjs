@@ -86,20 +86,20 @@ POST._login = function(data,res,userdb)
         if (userdb[data.user].password == data.password) 
         {
             userdb[data.user].updateKey()
-            console.log('user ' + data.user + ' logged on.')
-            res.json({ message: ('bem vindo(a) ' + data.user + '!'), key:userdb[data.user].key });         
+            console.log('user "' + data.user + '" logged on.')
+            res.json({ message: ('welcome ' + data.user + '!'), key:userdb[data.user].key });         
         }
         else
         {
-            console.log('user ' + data.user + ' unsucceful logon.')
-            res.json({ message: ('senha invalida!') });           
+        console.log('user "' + data.user + '" unsucceful logon.')
+            res.json({ message: ('invalid psswd!') });           
         }
     }
     else
     {
-        console.log('user ' + data.user + ' registered.')
+        console.log('user "' + data.user + '" registered.')
         userdb[data.user] = new User(data.user,data.password)
-        res.json({ message: 'usuario ' + data.user + ' registrado!', key:userdb[data.user].key});
+        res.json({ message: 'user "' + data.user + '" registerd!', key:userdb[data.user].key});
     }
 }
 
@@ -110,7 +110,7 @@ POST._createLobby = function(data,res,userdb,lobbydb)
     if (userdb[data.user].key === data.key) 
     {
         lobbydb[data.lobbyid] = new Lobby(data.lobbyid,data.user,data.allowed,data.tickrate)
-        console.log("lobby " + data.lobbyid + " has been created by " + data.user)
+        console.log("lobby '" + data.lobbyid + "' has been created by '" + data.user + "'")
     }
 }
 
@@ -130,11 +130,11 @@ PATCH._joinLobby = function(data,res,userdb,lobbydb)
 {
     if(!userdb[data.user])
     {
-        res.status(404).json({log:'lobby ' + data.lobbyid + ' does not exist.'})
+        res.status(404).json({log:'lobby "' + data.lobbyid + '" does not exist.'});
     }
     else if (!lobbydb[data.lobbyid]) 
     {
-        res.status(404).json({log:'user ' + data.user + ' does not exist.'})
+        res.status(404).json({log:'user "' + data.user + '" does not exist.'});
     }
     else if (userdb[data.user].key === data.key) 
     {
@@ -178,7 +178,7 @@ DELETE._deleteLobby = function(data,res,userdb,lobbydb)
     if (userdb[data.user].key === data.key) 
     {
         delete lobbydb[data.lobbyid];
-        console.log("lobby " + data.lobbyid + " has been deleted.")
+        console.log("lobby '" + data.lobbyid + "' has been deleted.")
     }
 }
 

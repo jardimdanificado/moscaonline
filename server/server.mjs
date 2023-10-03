@@ -10,7 +10,9 @@ app.use(cors());
 
 
 
-var userdb = {},lobbydb = {},connectedUsers = [];
+var userdb = {},
+lobbydb = {},
+connectedUsers = [];
 var currentFrame = 0;
 var tickIntervalID;
 
@@ -143,7 +145,7 @@ app.listen(8080, () =>
         {
             connectedUsers[i].lostPing++;
         }
-        else if (lostPing > 10) 
+        else if (lostPing > 7) 
         {
             console.log(connectedUsers[i].username + ' disconnected');
             connectedUsers.splice(i,1);
@@ -154,5 +156,5 @@ app.listen(8080, () =>
             connectedUsers[i].lostPing = 0;
         }
     }
-  })
+  }, 500)
 });

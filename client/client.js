@@ -74,6 +74,12 @@ async function spawnLobbyMenu(lobbylist,credentials)
     divNomeSala.appendChild(inputNomeSala);
     divNomeSala.appendChild(document.createElement("br"));
 
+    const labelInputTickrate = document.createElement("label");
+    labelInputTickrate.setAttribute("for", "__tickrate");
+    labelInputTickrate.textContent = "tickrate:";
+    divNomeSala.appendChild(labelInputTickrate);
+    divNomeSala.appendChild(document.createElement("br"));
+
     const inputTickrate = document.createElement("input")
     inputTickrate.setAttribute("type", "number");
     inputTickrate.setAttribute("id", "__tickrate");
@@ -95,7 +101,7 @@ async function spawnLobbyMenu(lobbylist,credentials)
                 tickrate:inputTickrate.value
             }).then(async (result)=>
             {
-                
+                console.log(result)
             })
         await connectToServer();
     });
@@ -109,11 +115,12 @@ async function spawnLobbyMenu(lobbylist,credentials)
     {
         event.preventDefault();
         jsonPATCH(__url,{user:credentials.user,lobbyid:_selectedLobby,key:__key},'joinLobby')
-            .then((result)=>
+            .then(async (result)=>
             {
                 if (result.status == 200)
                 {
-                    let tickrate = result.json().tickrate;
+                    let tickrate = (await result.json()).tickrate;
+                    console.log(tickrate)
                     if (_pingIntervalID) 
                     {
                         clearInterval(_pingIntervalID);
