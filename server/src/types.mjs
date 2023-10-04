@@ -18,33 +18,64 @@ export class User
     }
 }
 
+export class Client
+{
+    constructor(username)
+    {
+        this.username = username
+    }
+}
+
 export class Lobby
 {
-    allowedUsers = []
     connectedUsers = []
     creator = 'all'
     name = 'noname'
-    allowPlayer = function(username)
-    {
-        this.allowedUsers.push(username)
-    }
-    denyPlayer = function(username)
-    {
-        for (let i = 0; i < this.allowedUsers.length; i++) 
-        {
-            if(this.allowedUsers[i] == username)
-                this.allowedUsers.splice(i,1);
-        }
-    }
-    constructor(lobbyid,username='all',allowed=[],tickrate=700)
+    constructor(lobbyid,username='all',tickrate=700)
     {
         this.name = lobbyid;
         this.creator = username;
-        this.allowedUsers = allowed;
         this.tickrate = tickrate;
-        if (this.allowedUsers.length>0) 
+    }
+}
+
+export class Time
+{
+    tostring = function(separator=':') 
+    {
+        return this.year + separator + this.month + separator + this.day + separator + this.hour + separator + this.minute + separator + this.second
+    }
+    constructor(year,month,day,hour,minute,second)
+    {
+        if (typeof year != 'undefined') 
         {
-            this.allowedUsers.push(username);
+            this.year = year
+            this.month = month
+            this.day = day
+            this.hour = hour
+            this.minute = minute
+            this.second = second    
         }
+        else
+        {
+            let date = new Date();
+            this.year = date.getFullYear();
+            this.month = date.getMonth();
+            this.day = date.getDate();
+            this.hour = date.getHours();
+            this.minute = date.getMinutes();
+            this.second = date.getSeconds();
+        }
+    }
+}
+
+//message types
+
+export class Log
+{
+    constructor(message,time)
+    {
+        this.message = message
+        this.time = time
     }
 }

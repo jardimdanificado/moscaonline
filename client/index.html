@@ -1,36 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>moscaonline</title>
-    <script>
-        var _config,
-        __url,
-        __key,
-        _pingIntervalID,
-        _selectedLobby;
-    </script>
-    <script src="./client.js" type="module"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mosca online</title>
+  <script>
+    var mosca_global = {selectedLobby:0};
+    var _g = mosca_global;
+    _g.sendJSON = function(obj,type) 
+    {
+        obj.type = type;
+        _g.socket.send(JSON.stringify(obj));
+    }
+  </script>
+  <script src="src/client.js" type="module"></script>
 </head>
 <body>
-        <h1 id="__title">moscaonline</h1>
-        <label for="_user" id="label_user">user:</label>
-    <br>
-        <input type="text" id="_user" placeholder="user123">
-    <br>
-    <br>
-        <label for="_password" id="label_password">psswd:</label>
-    <br>
-        <input type="text" id="_password" placeholder="*********">
-    <br>
-    <br>
-        <label for="_ip" id="label_ip">server ip:</label>
-    <br>
-        <input type="text" id="_ip" placeholder="ex: localhost:8080">
-    <br>
-    <br>
-        <button id ="connect_button">connect!</button>
-    <br>
-    <div id="result"></div>
-    <br>
+    <h1>mosca online</h1>
 </body>
 </html>

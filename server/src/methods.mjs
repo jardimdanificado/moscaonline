@@ -1,188 +1,61 @@
-import { Lobby, User } from "./types.mjs";
+import { User, Client, Lobby } from "./types.mjs";
 
-
-
-var GET={},PUT={},POST={},PATCH={},DELETE={};
-
-
-
-/*******************************************************************
- *
- *
-    GET
- *
- *
-*******************************************************************/
-
-
-
-GET._getLobbyList = function(data,res,lobbydb) 
-{
-    const nomeUsuario = data.username;
-    let lista = []
-    for (let lobbyid in lobbydb)
+export const login = (ws,message,db,clients) => {
+    if (!db[message.username]) 
     {
-        let lobby = lobbydb[lobbyid]
-        if (lobby.allowedUsers.includes(nomeUsuario) || lobby.allowedUsers.length == 0) 
+        db[message.username] = new User(message.username,message.password);
+        clients[message.username] = new Client(message.username);
+        ws.user = clients[message.username];
+        console.log(`Novo cliente: ${message.username}`);
+        ws.send(JSON.stringify({type: 'spawnLobbyMenu',user:ws.user.username,log: 'open lobby menu.'}));
+    }
+    else 
+    {
+        if (db[message.username].password == message.password) 
         {
-            lista.push(lobby)
-        }
-    }
-    res.json(lista);
-}
-
-
-
-GET._ping = function(data,res,userdb,lobbydb)
-{
-    let done = false;
-    if (!userdb[data.user]) 
-    {
-        res.status(404).json({log:'user ' + data.user + ' not found.'});
-        done = true;
-    }
-    else if (!userdb[data.user].currentLobby) 
-    {
-        res.status(404).json({log:data.user + ' is not connected to any lobby.'});
-        done = true;
-    }
-    else if (!lobbydb[userdb[data.user].currentLobby]) 
-    {
-        res.status(404).json({log:'lobby ' + userdb[data.user].currentLobby + ' not found.'});
-        done = true;
-    }
-    else
-    {
-        let localLobby = lobbydb[userdb[data.user].currentLobby]
-        for (const cUser of localLobby.connectedUsers) 
-        {
-            if(cUser === data.user) 
-            {
-                res.status(200).json({log:'ok'});
-                done = true;
-            }
-        }
-    }
-    if(!done)
-        res.status(404).json({log:'something went wrong'})
-}
-
-
-
-/*******************************************************************
- * 
- * 
-    POST
- *
- *
-*******************************************************************/
-
-
-
-POST._login = function(data,res,userdb) 
-{
-    if (userdb[data.user]) 
-    {
-        if (userdb[data.user].password == data.password) 
-        {
-            userdb[data.user].updateKey()
-            console.log('user "' + data.user + '" logged on.')
-            res.json({ message: ('welcome ' + data.user + '!'), key:userdb[data.user].key });         
+            clients[message.username] = new Client(message.username);
+            ws.user = clients[message.username];
+            console.log("Login bem sucedido: " + message.username); 
+            ws.send(JSON.stringify({type: 'spawnLobbyMenu',user:ws.user.username,log: 'open lobby menu.'}));
         }
         else
         {
-        console.log('user "' + data.user + '" unsucceful logon.')
-            res.json({ message: ('invalid psswd!') });           
+            console.log(`Login falhou: ${message.username}`);
         }
     }
-    else
-    {
-        console.log('user "' + data.user + '" registered.')
-        userdb[data.user] = new User(data.user,data.password)
-        res.json({ message: 'user "' + data.user + '" registerd!', key:userdb[data.user].key});
-    }
 }
 
-
-
-POST._createLobby = function(data,res,userdb,lobbydb)
+let authenticate = function(ws,db,user,password,callback,args) 
 {
-    if (userdb[data.user].key === data.key) 
+    if (db[user] && db[user].password == password) 
     {
-        lobbydb[data.lobbyid] = new Lobby(data.lobbyid,data.user,data.allowed,data.tickrate)
-        console.log("lobby '" + data.lobbyid + "' has been created by '" + data.user + "'")
-    }
-}
-
-
-
-/*******************************************************************
- * 
- * 
-    PATCH
- *
- *
-*******************************************************************/
-
-
-
-PATCH._joinLobby = function(data,res,userdb,lobbydb)
-{
-    if(!userdb[data.user])
-    {
-        res.status(404).json({log:'lobby "' + data.lobbyid + '" does not exist.'});
-    }
-    else if (!lobbydb[data.lobbyid]) 
-    {
-        res.status(404).json({log:'user "' + data.user + '" does not exist.'});
-    }
-    else if (userdb[data.user].key === data.key) 
-    {
-        lobbydb[data.lobbyid].connectedUsers.push(data.user);
-        userdb[data.user].currentLobby = data.lobbyid;
-        console.log('user ' + data.user + ' joined "' + data.lobbyid + '" lobby');
-        res.status(200).json({log:'joined',tickrate:lobbydb[data.lobbyid].tickrate});
+        if (callback) 
+        {
+            callback(args ? {...args} : null);
+        }
+        console.log(`authenticated: ${user}`);
+        return true;
     }
     else
     {
-        res.status(404)
+        ws.send(JSON.stringify({type: 'close',user:user,log: 'connection rejected.'}));
+        console.log(`authentication failed: ${user}`);
+        return false;
     }
 }
 
-
-
-/*******************************************************************
- * 
- * 
-    PUT
- *
- *
-*******************************************************************/
-
-
-
-
-
-/*******************************************************************
- * 
- * 
-    DELETE
- *
- *
-*******************************************************************/
-
-
-
-DELETE._deleteLobby = function(data,res,userdb,lobbydb)
+export const createLobby = (ws,message,db,clients,lobbies) => 
 {
-    if (userdb[data.user].key === data.key) 
+    if(!authenticate(ws,db,message.user,message.password))
+        return;
+    else 
     {
-        delete lobbydb[data.lobbyid];
-        console.log("lobby '" + data.lobbyid + "' has been deleted.")
+        lobbies[message.lobbyid] = new Lobby(message.lobbyid,message.user, message.tickrate);
+        ws.send(JSON.stringify({type: 'spawnLobbyMenu',user:ws.user.username,log: 'open lobby menu.'}));
     }
 }
 
-
-
-//export
-export {GET,POST,PUT,PATCH,DELETE};
+export const getLobbyList = (ws,message,db,clients,lobbies) =>
+{
+    ws.send(JSON.stringify({type: 'updateLobbyList',lobbies:lobbies}));
+}
