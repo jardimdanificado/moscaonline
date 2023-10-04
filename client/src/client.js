@@ -62,7 +62,7 @@ function criarDivLogin()
 
 const connectToServer = async (username,passwd,ipaddr = _g.config.ip, port = _g.config.port) => 
 {
-    _g.socket = new WebSocket('ws://' + ipaddr + ':' + port + '/');
+    _g.socket = new WebSocket('ws://' + (ipaddr || _g.config.ip) + ':' + port + '/');
     
     _g.socket.addEventListener('open', (event) => {
         _g.socket.send(JSON.stringify({
