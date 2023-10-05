@@ -7,11 +7,6 @@
   <script>
     var mosca_global = {selectedLobby:0};
     var _g = mosca_global;
-    _g.sendJSON = function(obj,type) 
-    {
-        obj.type = type;
-        _g.socket.send(JSON.stringify(obj));
-    }
   </script>
   <script src="src/client.js" type="module"></script>
 </head>

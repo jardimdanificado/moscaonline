@@ -2,29 +2,45 @@ import * as util from "../shared/util.mjs";
 import * as WebSocket from "ws";
 import {User,Client} from "./src/types.mjs";
 import * as methods from "./src/methods.mjs";
-var db = {};
-var clients = {};
-var lobbydb = {}
+var session = 
+{
+    db: 
+    {
+        user:{},
+        lobby:{},
+    },
+    client: {},
+};
+const sendJSON = function(socket,obj,type) 
+{
+    obj.type = type;
+    socket.send(JSON.stringify(obj));
+}
 
 const server = new WebSocket.WebSocketServer({ port: 8080 });
-server.on('connection', (ws) => {
-    ws.on('message', (message) => {
-        //console.log(message);
+server.on('connection', (socket,request) => 
+{
+    socket.jsend = (data,type) =>
+    {
+        sendJSON(socket,data,type);
+    }
+    
+    socket.on('message', (message) => 
+    {
+        if (message) 
+            console.log(`Mensagem recebida: ${message}`);
+
         message = JSON.parse(message);
         if (message.type && methods[message.type]) 
         {
-            methods[message.type](ws,message,db,clients,lobbydb);
-        }
-        if (message) 
-        {
-            console.log(`Mensagem recebida: ${JSON.stringify(message)}`);
+            methods[message.type](socket,request,message,session);
         }
     });
 
-    ws.on('close', () => 
+    socket.on('close', () => 
     {
-        console.log('Cliente "' + ws.user.username + '" desconectado.');
-        clients[ws.user.username] = null;
+        console.log('Cliente "' + socket.user.username + '" desconectado.');
+        session.client[socket.user.username] = null;
     });
 });
 

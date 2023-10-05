@@ -20,9 +20,11 @@ export class User
 
 export class Client
 {
-    constructor(username)
+    constructor(username,socket,ip)
     {
-        this.username = username
+        this.username = username;
+        this.socket = socket;
+        this.ip = ip;
     }
 }
 

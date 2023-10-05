@@ -1,6 +1,6 @@
 
 
-function criarDivLogin() 
+function criarDivLogin()
 {
     const divLogin = document.createElement('div');
     divLogin.setAttribute('id', 'divLogin');
@@ -43,12 +43,14 @@ function criarDivLogin()
     const btnLogin = document.createElement('button');
     btnLogin.textContent = 'Login';
     btnLogin.setAttribute('id', 'connect_button');
-    btnLogin.addEventListener('click', async () => {
+    btnLogin.addEventListener('click', async () => 
+    {
         const login = inputLogin.value;
         const senha = inputSenha.value;
         let ip = ipbar.value;
         let port = _g.config.port;
-        if (ipbar.value && ipbar.value.includes(':')) {
+        if (ipbar.value && ipbar.value.includes(':')) 
+        {
             const [_ip, _port] = ipbar.value.split(':');
             ip = _ip;
             port = _port;
@@ -56,7 +58,6 @@ function criarDivLogin()
         await connectToServer(login, senha, ip, port);
     });
     divLogin.appendChild(btnLogin);
-
     return divLogin;
 }
 
@@ -64,19 +65,23 @@ const connectToServer = async (username,passwd,ipaddr = _g.config.ip, port = _g.
 {
     _g.socket = new WebSocket('ws://' + (ipaddr || _g.config.ip) + ':' + port + '/');
     
-    _g.socket.addEventListener('open', (event) => {
-        _g.socket.send(JSON.stringify({
+    _g.socket.addEventListener('open', (event) => 
+    {
+        _g.socket.send(JSON.stringify(
+        {
             type: 'login',
             username: username,
             password: passwd
         }));
-        _g.user = {
+        _g.user = 
+        {
             username: username,
             password: passwd
         };
     });
 
-    _g.socket.addEventListener('message', (event) => {
+    _g.socket.addEventListener('message', (event) => 
+    {
         let data = JSON.parse(event.data);
         if(_g.methods[data.type])
         {
@@ -87,10 +92,9 @@ const connectToServer = async (username,passwd,ipaddr = _g.config.ip, port = _g.
             }
         }
     });
-    
 }
 
-async function main() 
+async function main()
 {
     _g.config = await fetch("./config.json");
     _g.config = await _g.config.json();

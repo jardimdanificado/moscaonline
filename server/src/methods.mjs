@@ -1,61 +1,59 @@
 import { User, Client, Lobby } from "./types.mjs";
 
-export const login = (ws,message,db,clients) => {
-    if (!db[message.username]) 
-    {
-        db[message.username] = new User(message.username,message.password);
-        clients[message.username] = new Client(message.username);
-        ws.user = clients[message.username];
-        console.log(`Novo cliente: ${message.username}`);
-        ws.send(JSON.stringify({type: 'spawnLobbyMenu',user:ws.user.username,log: 'open lobby menu.'}));
-    }
-    else 
-    {
-        if (db[message.username].password == message.password) 
-        {
-            clients[message.username] = new Client(message.username);
-            ws.user = clients[message.username];
-            console.log("Login bem sucedido: " + message.username); 
-            ws.send(JSON.stringify({type: 'spawnLobbyMenu',user:ws.user.username,log: 'open lobby menu.'}));
-        }
-        else
-        {
-            console.log(`Login falhou: ${message.username}`);
-        }
-    }
-}
-
-let authenticate = function(ws,db,user,password,callback,args) 
+export const authenticate = function(socket,request,msg,session) 
 {
-    if (db[user] && db[user].password == password) 
+    if (session.db.user[msg.username] && session.db.user[msg.username].password == msg.password) 
     {
-        if (callback) 
-        {
-            callback(args ? {...args} : null);
-        }
-        console.log(`authenticated: ${user}`);
+        session.client[msg.username] = new Client(msg.username,socket,request.connection.remoteAddress);
+        socket.client = session.client[msg.username];
+        console.log(`authenticated: ${msg.username}`);
         return true;
     }
     else
     {
-        ws.send(JSON.stringify({type: 'close',user:user,log: 'connection rejected.'}));
-        console.log(`authentication failed: ${user}`);
+        socket.send({log: 'connection rejected.'},'close');
+        socket.close();
         return false;
     }
 }
 
-export const createLobby = (ws,message,db,clients,lobbies) => 
+export const login = (socket,request,message,session) => 
 {
-    if(!authenticate(ws,db,message.user,message.password))
-        return;
+    if (!session.db.user[message.username]) 
+    {
+        session.db.user[message.username] = new User(message.username,message.password);
+        console.log(`Novo cliente: ${message.username}`);
+        if(!authenticate(socket,session.db.user,message.username,message.password))
+            return;
+        socket.jsend({log: 'open lobby menu.'},'spawnLobbyMenu');
+    }
     else 
     {
-        lobbies[message.lobbyid] = new Lobby(message.lobbyid,message.user, message.tickrate);
-        ws.send(JSON.stringify({type: 'spawnLobbyMenu',user:ws.user.username,log: 'open lobby menu.'}));
+        if(!authenticate(socket,session.db.user,message.username,message.password))
+        {
+            console.log("Login bem sucedido: " + message.username); 
+            socket.jsend({log: 'open lobby menu.'},'spawnLobbyMenu');
+        }
+        else
+        {
+            console.log(`Login falhou: ${message.username}`);
+            return;
+        }
     }
 }
 
-export const getLobbyList = (ws,message,db,clients,lobbies) =>
+export const createLobby = (socket,request,message,session) => 
 {
-    ws.send(JSON.stringify({type: 'updateLobbyList',lobbies:lobbies}));
+    if(!authenticate(socket,db,message.username,message.password))
+        return;
+    else 
+    {
+        session.db.lobby[message.lobbyid] = new Lobby(message.lobbyid,message.user, message.tickrate);
+        socket.send(JSON.stringify({type: 'spawnLobbyMenu',user:socket.user.username,log: 'open lobby menu.'}));
+    }
+}
+
+export const getLobbyList = (socket,request,message,session) =>
+{
+    socket.send(JSON.stringify({type: 'updateLobbyList',lobbies:session.db.lobby}));
 }
