@@ -1,108 +1,61 @@
-import { Room, User } from "./types.mjs";
-var get={},put={},post={},patch={};
+import { User, Client, Lobby } from "./types.mjs";
 
-/*******************************************************************
- *
- *
-    GET
- *
- *
-*******************************************************************/
-
-
-
-get._getRoomList = function(data,res,roomdb) 
-{
-    const nomeUsuario = data.username;
-    let lista = [new Room('teste','debug')]
-    for (let roomid in roomdb)
+export const login = (ws,message,db,clients) => {
+    if (!db[message.username]) 
     {
-        let room = roomdb[roomid]
-        console.log(room)
-        if (room.allowedUsers.includes(nomeUsuario) || room.allowedUsers.length == 0) 
-        {
-            lista.push(room.name)
-        }
+        db[message.username] = new User(message.username,message.password);
+        clients[message.username] = new Client(message.username);
+        ws.user = clients[message.username];
+        console.log(`Novo cliente: ${message.username}`);
+        ws.send(JSON.stringify({type: 'spawnLobbyMenu',user:ws.user.username,log: 'open lobby menu.'}));
     }
-    res.json(lista);
-}
-
-
-
-/*******************************************************************
- * 
- * 
-    POST
- *
- *
-*******************************************************************/
-
-
-post._login = function(data,res,userdb) 
-{
-    if (userdb[data.user]) 
+    else 
     {
-        if (userdb[data.user].password == data.password) 
+        if (db[message.username].password == message.password) 
         {
-            userdb[data.user].updateKey()
-            console.log('user ' + data.user + ' logged on.')
-            res.json({ message: ('bem vindo(a) ' + data.user + '!'), key:userdb[data.user].key });         
+            clients[message.username] = new Client(message.username);
+            ws.user = clients[message.username];
+            console.log("Login bem sucedido: " + message.username); 
+            ws.send(JSON.stringify({type: 'spawnLobbyMenu',user:ws.user.username,log: 'open lobby menu.'}));
         }
         else
         {
-            console.log('user ' + data.user + ' unsucceful logon.')
-            res.json({ message: ('senha invalida!') });           
+            console.log(`Login falhou: ${message.username}`);
         }
+    }
+}
+
+let authenticate = function(ws,db,user,password,callback,args) 
+{
+    if (db[user] && db[user].password == password) 
+    {
+        if (callback) 
+        {
+            callback(args ? {...args} : null);
+        }
+        console.log(`authenticated: ${user}`);
+        return true;
     }
     else
     {
-        console.log('user ' + data.user + ' registered.')
-        userdb[data.user] = new User(data.user,data.password)
-        res.json({ message: 'usuario ' + data.user + ' registrado!', key:userdb[data.user].key});
+        ws.send(JSON.stringify({type: 'close',user:user,log: 'connection rejected.'}));
+        console.log(`authentication failed: ${user}`);
+        return false;
     }
 }
 
-
-
-/*******************************************************************
- * 
- * 
-    POST
- *
- *
-*******************************************************************/
-
-
-
-patch._createRoom = function(data,res,userdb,roomdb) 
+export const createLobby = (ws,message,db,clients,lobbies) => 
 {
-    if (userdb[data.user].key === data.key) 
+    if(!authenticate(ws,db,message.user,message.password))
+        return;
+    else 
     {
-        roomdb[data.roomname] = (new Room(data.roomname,data.user,data.allowed))
+        lobbies[message.lobbyid] = new Lobby(message.lobbyid,message.user, message.tickrate);
+        ws.send(JSON.stringify({type: 'spawnLobbyMenu',user:ws.user.username,log: 'open lobby menu.'}));
     }
 }
 
-
-
-/*******************************************************************
- * 
- * 
-    PUT
- *
- *
-*******************************************************************/
-
-
-
-
-
-/*******************************************************************
- * 
- * 
-    DELETE
- *
- *
-*******************************************************************/
-
-//export
-export {get,post,put,patch};
+export const getLobbyList = (ws,message,db,clients,lobbies) =>
+{
+    ws.send(JSON.stringify({type: 'updateLobbyList',lobbies:lobbies}));
+}

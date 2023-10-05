@@ -2,6 +2,9 @@ import {newKeycode} from '../../shared/util.mjs'
 
 export class User
 {
+    ping = false
+    lostPing = 0
+    currentLobby
     updateKey = function() 
     {
         this.key = this.username + '@' + newKeycode()
@@ -15,31 +18,64 @@ export class User
     }
 }
 
-export class Room
+export class Client
 {
-    allowedUsers = []
+    constructor(username)
+    {
+        this.username = username
+    }
+}
+
+export class Lobby
+{
+    connectedUsers = []
     creator = 'all'
     name = 'noname'
-    allowPlayer = function(username)
+    constructor(lobbyid,username='all',tickrate=700)
     {
-        this.allowedUsers.push(username)
+        this.name = lobbyid;
+        this.creator = username;
+        this.tickrate = tickrate;
     }
-    denyPlayer = function(username)
+}
+
+export class Time
+{
+    tostring = function(separator=':') 
     {
-        for (let i = 0; i < this.allowedUsers.length; i++) 
+        return this.year + separator + this.month + separator + this.day + separator + this.hour + separator + this.minute + separator + this.second
+    }
+    constructor(year,month,day,hour,minute,second)
+    {
+        if (typeof year != 'undefined') 
         {
-            if(this.allowedUsers[i] == username)
-                this.allowedUsers.splice(i,1);
+            this.year = year
+            this.month = month
+            this.day = day
+            this.hour = hour
+            this.minute = minute
+            this.second = second    
+        }
+        else
+        {
+            let date = new Date();
+            this.year = date.getFullYear();
+            this.month = date.getMonth();
+            this.day = date.getDate();
+            this.hour = date.getHours();
+            this.minute = date.getMinutes();
+            this.second = date.getSeconds();
         }
     }
-    constructor(roomname,username='all',allowed=[])
+}
+
+//message types
+
+export class Log
+{
+    constructor(message,time)
     {
-        this.name = roomname
-        this.username = username
-        this.allowedUsers = allowed
-        if (this.allowedUsers.length>0) 
-        {
-            this.allowedUsers.push(username)
-        }
+        this.message = message
+        this.time = time
     }
 }

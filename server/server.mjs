@@ -1,70 +1,31 @@
-import * as util from "../shared/util.mjs"
-import express from 'express'
-import cors from 'cors'
-const app = express();
-const allMethods = await import('./src/methods.mjs')
+import * as util from "../shared/util.mjs";
+import * as WebSocket from "ws";
+import {User,Client} from "./src/types.mjs";
+import * as methods from "./src/methods.mjs";
+var db = {};
+var clients = {};
+var lobbydb = {}
 
-var userdb = {},roomdb = {}
+const server = new WebSocket.WebSocketServer({ port: 8080 });
+server.on('connection', (ws) => {
+    ws.on('message', (message) => {
+        //console.log(message);
+        message = JSON.parse(message);
+        if (message.type && methods[message.type]) 
+        {
+            methods[message.type](ws,message,db,clients,lobbydb);
+        }
+        if (message) 
+        {
+            console.log(`Mensagem recebida: ${JSON.stringify(message)}`);
+        }
+    });
 
-var PUT_STEPS = {...allMethods.put}
-
-
-var POST_STEPS = {...allMethods.post}
-POST_STEPS.login = function(data,res) 
-{
-    POST_STEPS._login(data,res,userdb)
-}
-
-
-var PATCH_STEPS = {...allMethods.patch}
-PATCH_STEPS.createRoom = function(data,res) 
-{
-    PATCH_STEPS._createRoom(data,res,userdb,roomdb)
-}
-
-
-var GET_STEPS = {...allMethods.get}
-GET_STEPS.getRoomList = function(data,res) 
-{
-    GET_STEPS._getRoomList(data,res,roomdb)
-}
-
-
-
-app.use(express.json());
-app.use(cors());
-
-
-
-app.post('/', (req, res) => 
-{
-    const data = req.body; // Os dados enviados pelo cliente estão em req.body
-    POST_STEPS[data.type](data,res)
+    ws.on('close', () => 
+    {
+        console.log('Cliente "' + ws.user.username + '" desconectado.');
+        clients[ws.user.username] = null;
+    });
 });
 
-
-app.patch('/', (req, res) => 
-{
-    const data = req.body; // Os dados enviados pelo cliente estão em req.body
-    PATCH_STEPS[data.type](data,res)
-});
-
-
-app.put('/', (req, res) => 
-{
-    const data = req.body; // Os dados enviados pelo cliente estão em req.body         
-    PUT_STEPS[data.type](data,res)
-});
-
-
-
-app.get('/', (req, res) => 
-{
-    let data = req.query;
-    GET_STEPS[data.type](data,res);
-});
-
-
-app.listen(8080, () => {
-  console.log('Servidor está rodando na porta 8080');
-});
+console.log('Servidor WebSocket está ouvindo na porta 8080');
